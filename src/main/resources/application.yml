@@ -1,0 +1,47 @@
+spring:
+  profiles:
+    active: local
+  liquibase:
+    contexts: ${spring.profiles.active}
+  liquibase-schema: public
+
+  datasource:
+    continue-on-error: false
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      jdbcUrl: ""
+      maximum-pool-size: 5
+      minimum-idle: 2
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      javax:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
+      hibernate:
+        default_schema: public
+        cache:
+          use_second_level_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+
+
+serial-port:
+  baud-rate: 19200
+  port-name: /dev/ttyACM0
+  flow-control-in: 0
+  flow-control-out: 0
+  data-bits: 8
+  stop-bits: 1
+  parity: 0
+
+
+telegram-bot:
+  user-name:
+  token:
+

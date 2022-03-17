@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+ Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel pgmodeler-ver="0.9.4" use-changelog="false" last-position="0,0" last-zoom="1" max-obj-count="4"
+	 default-schema="public" default-owner="postgres"
+	 layers="Default layer"
+	 active-layers="0"
+	 layer-name-colors="#000000"
+	 layer-rect-colors="#b4b4b4"
+	 show-layer-names="false" show-layer-rects="false">
+<database name="boiler" encoding="UTF8" lc-collate="en_US.UTF-8" lc-ctype="en_US.UTF-8" is-template="false" allow-conns="true">
+	<role name="postgres"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<schema name="public" layers="0" rect-visible="true" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<sequence name="access_level_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="32767" cache="1">
+	<schema name="public"/>
+	<role name="postgres"/>
+</sequence>
+
+<table name="access_level" layers="0" collapse-mode="2" max-obj-count="3" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="580" y="80"/>
+	<column name="id" not-null="true" sequence="public.access_level_id_seq">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="code" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="description" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<constraint name="access_level_pkey" type="pk-constr" table="public.access_level">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<domain name="crtd_at" not-null="false" default-value="((date_part('epoch'::text, now()) * (1000)::double precision))::bigint">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<type name="bigint" length="2" precision="0"/>
+</domain>
+
+<table name="telegram" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="20" y="40"/>
+	<column name="id" not-null="true">
+		<type name="uuid" length="0"/>
+	</column>
+	<column name="chat_it" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="username" not-null="true">
+		<type name="text" length="0"/>
+	</column>
+	<column name="secret_key">
+		<type name="text" length="0"/>
+	</column>
+	<column name="enable">
+		<type name="boolean" length="0"/>
+	</column>
+	<column name="access_level_id" not-null="true">
+		<type name="smallint" length="0"/>
+	</column>
+	<column name="created_at" not-null="true">
+		<type name="public.crtd_at" length="0"/>
+	</column>
+	<constraint name="telegram_pkey" type="pk-constr" table="public.telegram">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="uq_telegram_tbl_chat_id" type="uq-constr" table="public.telegram">
+		<columns names="chat_it" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<constraint name="fk_telegram_tbl_access_level_id" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.access_level" table="public.telegram">
+	<columns names="access_level_id" ref-type="src-columns"/>
+	<columns names="id" ref-type="dst-columns"/>
+</constraint>
+
+<relationship name="rel_telegram_access_level" type="relfk" layers="0"
+	 custom-color="#2f441c"
+	 src-table="public.telegram"
+	 dst-table="public.access_level" reference-fk="fk_telegram_tbl_access_level_id"
+	 src-required="false" dst-required="true"/>
+
+<permission>
+	<object name="public" type="schema"/>
+	<roles names="postgres"/>
+	<privileges create="true" usage="true"/>
+</permission>
+<permission>
+	<object name="public" type="schema"/>
+	<privileges create="true" usage="true"/>
+</permission>
+</dbmodel>
