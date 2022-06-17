@@ -22,7 +22,7 @@ import java.io.InputStream;
      */
     public class SerialInputStream extends InputStream {
 
-        private SerialPort serialPort;
+        private final SerialPort serialPort;
         private int defaultTimeout = 0;
 
         /**

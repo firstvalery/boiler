@@ -44,12 +44,13 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
         ModbusMaster master = factory.createRtuMaster(serialPortSimpleWrapper);
         master.setTimeout(2000);
+        master.setDiscardDataDelay(100);
         master.setRetries(0);
         try {
             master.init();
             while (true) {
-                readHoldingRegisters(master, SLAVE_ID, 1, READ_REGISTERS_COUNT);
-                writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT + 1);
+                readHoldingRegisters(master, SLAVE_ID, 0, READ_REGISTERS_COUNT);
+                writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT);
             }
         } catch (ModbusInitException e) {
             System.out.println("Modbus Master Init Error: " + e.getMessage());
@@ -78,8 +79,9 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             synchronized (writeArray) {
                 WriteRegistersRequest request = new WriteRegistersRequest(slaveId, start, writeArray);
                 WriteRegistersResponse response = (WriteRegistersResponse) master.send(request);
-                if (response.isException())
+                if (response.isException()) {
                     System.out.println("Exception response: message=" + response.getExceptionMessage());
+                }
                 Arrays.fill(writeArray, (short) 0);
             }
         } catch (ModbusTransportException e) {

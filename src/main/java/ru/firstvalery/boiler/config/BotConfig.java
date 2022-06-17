@@ -12,5 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class BotConfig {
     private String userName;
     private String token;
-
+    private String secretCodeMonitoring;
+    private String secretCodeFullControl;
 }

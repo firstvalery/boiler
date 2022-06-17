@@ -15,7 +15,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import ru.firstvalery.boiler.config.BotConfig;
+import ru.firstvalery.boiler.model.entity.AccessLevel;
+import ru.firstvalery.boiler.model.entity.AccessLevelValues;
+import ru.firstvalery.boiler.model.entity.TelegramUser;
+import ru.firstvalery.boiler.model.repository.AccessLevelRepository;
 import ru.firstvalery.boiler.telegram.buttonhadlers.ButtonHandler;
+import ru.firstvalery.boiler.telegram.register.TelegramUserRegisterService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +35,20 @@ public class TelegramServiceImpl extends TelegramLongPollingBot implements Teleg
     private final String botUserName;
     private final String botToken;
     private final Map<String, ButtonHandler> buttonHandlers;
+    private final TelegramUserRegisterService telegramUserRegisterService;
+    private final AccessLevelRepository accessLevelRepository;
 
-    public TelegramServiceImpl(BotConfig botConfig, List<ButtonHandler> buttonHandlerList) {
+    public TelegramServiceImpl(BotConfig botConfig,
+                               List<ButtonHandler> buttonHandlerList,
+                               TelegramUserRegisterService telegramUserRegisterService,
+                               AccessLevelRepository accessLevelRepository) {
         this.botUserName = botConfig.getUserName();
         this.botToken = botConfig.getToken();
+
         this.buttonHandlers = buttonHandlerList.stream()
                 .collect(Collectors.toMap(ButtonHandler::getName, Function.identity()));
+        this.telegramUserRegisterService = telegramUserRegisterService;
+        this.accessLevelRepository = accessLevelRepository;
         for (ButtonHandler bh : buttonHandlerList) {
             bh.setSender(this);
         }
@@ -78,34 +91,49 @@ public class TelegramServiceImpl extends TelegramLongPollingBot implements Teleg
             message = update.getMessage().hasText() ? update.getMessage().getText() : update.getMessage().getCaption();
             chatId = update.getMessage().getChatId().toString();
 
+            AccessLevelValues accessLevel = checkUserRegistration(chatId, message, from);
+            if (accessLevel.equals(AccessLevelValues.ACCESS_DENIED)) {
+                return;
+            }
+
             try {
                 sendMsg(chatId, false, "выберите интересующий раздел", MenuItems.rootItem);
             } catch (Exception e) {
                 log.error("Ошибка при отправке сообщения в телеграм", e);
             }
+
         } else if (update.hasCallbackQuery()) {
             from = update.getCallbackQuery().getFrom();
             message = update.getCallbackQuery().getData();
             chatId = update.getCallbackQuery().getMessage().getChatId().toString();
 
-            ButtonHandler buttonHandler = buttonHandlers.get(message);
-            if (buttonHandler != null) {
-                buttonHandler.handle(update);
-                eraseButtons(update);
-            } else {
-                log.error("обработчик не зарегистрирован!");
+            AccessLevelValues accessLevel = checkUserRegistration(chatId, message, from);
+            if (accessLevel.equals(AccessLevelValues.ACCESS_DENIED)) {
+                return;
             }
-        }
-        if (update.hasMessage() && update.getMessage().hasSticker()) {
-            try {
-                sendMsg(chatId, false, "Бот не принимает стикеры", null);
-            } catch (Exception e) {
-                log.error("Ошибка при отправке сообщения в телеграм1", e);
-            }
+
+            delegate(update, accessLevel);
         }
     }
 
-    private void eraseButtons(Update update) {
+    private void delegate(Update update, AccessLevelValues accessLevel) {
+        String message = update.getCallbackQuery().getData();
+        ButtonHandler buttonHandler = buttonHandlers.get(message);
+        if (buttonHandler != null) {
+            buttonHandler.handle(update, accessLevel);
+        } else {
+            log.error("обработчик не зарегистрирован!");
+        }
+    }
+
+    private AccessLevelValues checkUserRegistration(String chatId, String message, User from) {
+        TelegramUser telegramUser = telegramUserRegisterService.checkUserRegistration(chatId, message, from, this);
+        AccessLevel accessLevel = telegramUser.getAccessLevel();
+        return AccessLevelValues.of(accessLevel);
+    }
+
+    @Override
+    public synchronized void removeButtons(Update update) {
         EditMessageText editMessageText = new EditMessageText();
         editMessageText.setChatId(update.getCallbackQuery().getMessage().getChatId().toString());
         editMessageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
@@ -121,7 +149,7 @@ public class TelegramServiceImpl extends TelegramLongPollingBot implements Teleg
     }
 
     @Override
-    public synchronized String sendMsg(String chatId, boolean forceReply, String answer, Map<String, String> buttons) throws Exception {
+    public synchronized String sendMsg(String chatId, boolean forceReply, String answer, Map<String, String> buttons) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(answer);
@@ -169,7 +197,7 @@ public class TelegramServiceImpl extends TelegramLongPollingBot implements Teleg
         return buttons.values()
                 .stream()
                 .map(String::length)
-                .reduce((x, y) -> x + y)
+                .reduce(Integer::sum)
                 .orElse(0);
     }
 

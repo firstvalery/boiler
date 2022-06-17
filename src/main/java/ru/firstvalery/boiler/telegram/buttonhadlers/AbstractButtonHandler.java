@@ -1,6 +1,7 @@
 package ru.firstvalery.boiler.telegram.buttonhadlers;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.firstvalery.boiler.model.entity.AccessLevelValues;
 import ru.firstvalery.boiler.telegram.TelegramService;
 
 public abstract class AbstractButtonHandler implements ButtonHandler {
@@ -12,7 +13,7 @@ public abstract class AbstractButtonHandler implements ButtonHandler {
     }
 
     @Override
-    abstract public void handle(Update update);
+    abstract public void handle(Update update, AccessLevelValues accessLevel);
 
     @Override
     abstract public String getName();

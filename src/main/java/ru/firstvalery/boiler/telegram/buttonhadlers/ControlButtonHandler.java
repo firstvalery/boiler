@@ -3,6 +3,7 @@ package ru.firstvalery.boiler.telegram.buttonhadlers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.firstvalery.boiler.model.entity.AccessLevelValues;
 import ru.firstvalery.boiler.sensors.SensorService;
 import ru.firstvalery.boiler.telegram.MenuItems;
 
@@ -19,10 +20,16 @@ public class ControlButtonHandler extends AbstractButtonHandler {
     }
 
     @Override
-    public void handle(Update update) {
+    public void handle(Update update, AccessLevelValues accessLevel) {
         String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
         try {
-            telegramService.sendMsg(chatId, false, "управление ТЭН", createTenButtons());
+            if (AccessLevelValues.FULL_CONTROL.equals(accessLevel)) {
+                telegramService.removeButtons(update);
+                telegramService.sendMsg(chatId, false, "управление ТЭН", createTenButtons());
+            } else {
+                telegramService.removeButtons(update);
+                telegramService.sendMsg(chatId, false, "У вас недостаточно прав для управления", MenuItems.returnToRootItem);
+            }
         } catch (Exception e) {
             log.error("Ошибка отправки бота");
         }

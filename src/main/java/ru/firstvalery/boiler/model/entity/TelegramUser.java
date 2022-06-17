@@ -8,34 +8,28 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "telegram")
+@Table(name = "telegram_user")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Telegram {
+public class TelegramUser {
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Lob
-    @Column(name = "chat_it", nullable = false)
-    private String chatIt;
+    @Column(name = "chat_id", nullable = false)
+    private String chatId;
 
-    @Lob
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Lob
-    @Column(name = "secret_key")
-    private String secretKey;
-
-    @Column(name = "enable")
-    private Boolean enable;
+    @Column(name = "retry", nullable = false)
+    private int retry;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "access_level_id", nullable = false)
     private AccessLevel accessLevel;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Long createdAt;
 }

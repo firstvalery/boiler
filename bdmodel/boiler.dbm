@@ -39,6 +39,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="access_level_pkey" type="pk-constr" table="public.access_level">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
+	<initial-data>
+<![CDATA[id•code•description⸣
+1•ACCESS_DENIED•access denied⸣
+2•MONITORING_ONLY•only monitoring is available⸣
+3•FULL_CONTROL•full conrol is available]]>
+	</initial-data>
 </table>
 
 <domain name="crtd_at" not-null="false" default-value="((date_part('epoch'::text, now()) * (1000)::double precision))::bigint">
@@ -47,7 +53,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<type name="bigint" length="2" precision="0"/>
 </domain>
 
-<table name="telegram" layers="0" collapse-mode="2" max-obj-count="8" z-value="0">
+<table name="telegram" layers="0" collapse-mode="2" max-obj-count="6" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="20" y="40"/>
@@ -59,12 +65,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="username" not-null="true">
 		<type name="text" length="0"/>
-	</column>
-	<column name="secret_key">
-		<type name="text" length="0"/>
-	</column>
-	<column name="enable">
-		<type name="boolean" length="0"/>
 	</column>
 	<column name="access_level_id" not-null="true">
 		<type name="smallint" length="0"/>
@@ -78,6 +78,61 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<constraint name="uq_telegram_tbl_chat_id" type="uq-constr" table="public.telegram">
 		<columns names="chat_it" ref-type="src-columns"/>
 	</constraint>
+</table>
+
+<table name="analog_parameter" layers="0" collapse-mode="2" max-obj-count="12" z-value="0">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="20" y="260"/>
+	<column name="id" not-null="true">
+		<type name="smallserial" length="0"/>
+		<comment><![CDATA[PK]]></comment>
+	</column>
+	<column name="name" not-null="true">
+		<type name="text" length="0"/>
+		<comment><![CDATA[name]]></comment>
+	</column>
+	<column name="description" not-null="true">
+		<type name="text" length="0"/>
+		<comment><![CDATA[description]]></comment>
+	</column>
+	<column name="alarm_min" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[alarm minimal setting]]></comment>
+	</column>
+	<column name="lim_min" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[limit minimal setting]]></comment>
+	</column>
+	<column name="lim_max" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[limit maximal setting]]></comment>
+	</column>
+	<column name="alarm_max" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[alarm maximal setting]]></comment>
+	</column>
+	<column name="hysteresis" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[hysteresis]]></comment>
+	</column>
+	<column name="blur" not-null="true">
+		<type name="double precision" length="0"/>
+		<comment><![CDATA[scale blur percentage]]></comment>
+	</column>
+	<column name="data_offset" not-null="true">
+		<type name="smallint" length="0"/>
+		<comment><![CDATA[offset address in the modbus holding register area ]]></comment>
+	</column>
+	<constraint name="analog_parameter_pk" type="pk-constr" table="public.analog_parameter">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<initial-data>
+<![CDATA[id•name•description•alarm_min•lim_min•lim_max•alarm_max•hysteresis•blur•data_offset⸣
+1•TT1•Т вх ТЭН•10•15•50•60•1•1•0⸣
+2•TT2•Т вых ТЭН•10•15•55•65•1•1•2⸣
+3•TT3•Т возд•10•12•25•30•1•1•4]]>
+	</initial-data>
 </table>
 
 <constraint name="fk_telegram_tbl_access_level_id" type="fk-constr" comparison-type="MATCH SIMPLE"

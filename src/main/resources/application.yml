@@ -44,4 +44,5 @@ serial-port:
 telegram-bot:
   user-name:
   token:
+  secretCode:
 
