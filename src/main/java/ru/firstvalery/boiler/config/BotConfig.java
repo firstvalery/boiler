@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class BotConfig {
+
     private String userName;
     private String token;
     private String secretCodeMonitoring;
