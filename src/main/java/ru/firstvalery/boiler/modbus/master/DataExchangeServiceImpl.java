@@ -48,7 +48,7 @@ public class DataExchangeServiceImpl implements DataExchangeService {
             master.init();
             while (true) {
                 readHoldingRegisters(master, SLAVE_ID, 0, READ_REGISTERS_COUNT);
-                //writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT);
+                writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT);
             }
         } catch (ModbusInitException e) {
             System.out.println("Modbus Master Init Error: " + e.getMessage());
