@@ -4,6 +4,7 @@ import com.serotonin.modbus4j.serial.SerialPortWrapper;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import lombok.Getter;
+import ru.firstvalery.boiler.config.SerialPortConfig;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,15 +25,14 @@ public class SerialPortSimpleWrapper implements SerialPortWrapper {
     @Getter
     final private int parity;
 
-    public SerialPortSimpleWrapper(String commPortId, int baudRate, int flowControlIn,
-                                   int flowControlOut, int dataBits, int stopBits, int parity) {
-        this.baudRate = baudRate;
-        this.flowControlIn = flowControlIn;
-        this.flowControlOut = flowControlOut;
-        this.dataBits = dataBits;
-        this.stopBits = stopBits;
-        this.parity = parity;
-        port = new SerialPort(commPortId);
+    public SerialPortSimpleWrapper(SerialPortConfig serialConfig) {
+        this.baudRate = serialConfig.getBaudRate();
+        this.flowControlIn = serialConfig.getFlowControlIn();
+        this.flowControlOut = serialConfig.getFlowControlOut();
+        this.dataBits = serialConfig.getDataBits();
+        this.stopBits = serialConfig.getStopBits();
+        this.parity = serialConfig.getParity();
+        port = new SerialPort(serialConfig.getPortName());
     }
 
     @Override

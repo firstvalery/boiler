@@ -20,13 +20,13 @@ import java.util.concurrent.Executors;
 
 @Service
 public class DataExchangeServiceImpl implements DataExchangeService {
-    private final SerialPortConfig serialCfg;
-    private static final int READ_REGISTERS_COUNT = 16;
+    private static final int SLAVE_ID = 1;
+    private static final int READ_REGISTERS_COUNT =16;
     private static final int WRITE_REGISTERS_COUNT = 16;
     private final short[] readArray = new short[READ_REGISTERS_COUNT];
     private final short[] writeArray = new short[WRITE_REGISTERS_COUNT];
-    private static final int SLAVE_ID = 1;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final SerialPortConfig serialCfg;
 
     public DataExchangeServiceImpl(SerialPortConfig applicationConfig) {
         this.serialCfg = applicationConfig;
@@ -38,19 +38,17 @@ public class DataExchangeServiceImpl implements DataExchangeService {
 
     private void task() {
         ModbusFactory factory = new ModbusFactory();
-        SerialPortSimpleWrapper serialPortSimpleWrapper = new SerialPortSimpleWrapper(serialCfg.getPortName(), serialCfg.getBaudRate(),
-                serialCfg.getFlowControlIn(), serialCfg.getFlowControlOut(),
-                serialCfg.getDataBits(), serialCfg.getStopBits(), serialCfg.getParity());
+        SerialPortSimpleWrapper serialPortSimpleWrapper = new SerialPortSimpleWrapper(serialCfg);
 
         ModbusMaster master = factory.createRtuMaster(serialPortSimpleWrapper);
         master.setTimeout(2000);
-        master.setDiscardDataDelay(100);
+        master.setDiscardDataDelay(1000);
         master.setRetries(0);
         try {
             master.init();
             while (true) {
                 readHoldingRegisters(master, SLAVE_ID, 0, READ_REGISTERS_COUNT);
-                writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT);
+                //writeRegisters(master, SLAVE_ID, READ_REGISTERS_COUNT);
             }
         } catch (ModbusInitException e) {
             System.out.println("Modbus Master Init Error: " + e.getMessage());
