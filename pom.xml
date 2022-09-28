@@ -102,9 +102,9 @@
             <version>${modbus4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.scream3r</groupId>
+            <groupId>io.github.java-native</groupId>
             <artifactId>jssc</artifactId>
-            <version>${jssc.version}</version>
+            <version>2.9.4</version>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
