@@ -47,11 +47,11 @@ public class SerialPortSimpleWrapper implements SerialPortWrapper {
     @Override
     public void open() throws Exception {
         try {
+            log.info("Открытие порта. параметры: {} ", serialPortConfig);
             port.openPort();
             port.setParams(this.getBaudRate(), this.getDataBits(), this.getStopBits(), this.getParity());
             port.setFlowControlMode(this.getFlowControlIn() | this.getFlowControlOut());
         } catch (SerialPortException ignore) {
-            log.error("Неудачная попытка открытия порта. параметры: {} ", serialPortConfig);
         }
     }
 
