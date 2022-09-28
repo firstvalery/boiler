@@ -4,13 +4,16 @@ import com.serotonin.modbus4j.serial.SerialPortWrapper;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import ru.firstvalery.boiler.config.SerialPortConfig;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Slf4j
 public class SerialPortSimpleWrapper implements SerialPortWrapper {
 
+    private final SerialPortConfig serialPortConfig;
     private final SerialPort port;
     @Getter
     final private int baudRate;
@@ -26,6 +29,7 @@ public class SerialPortSimpleWrapper implements SerialPortWrapper {
     final private int parity;
 
     public SerialPortSimpleWrapper(SerialPortConfig serialConfig) {
+        this.serialPortConfig = serialConfig;
         this.baudRate = serialConfig.getBaudRate();
         this.flowControlIn = serialConfig.getFlowControlIn();
         this.flowControlOut = serialConfig.getFlowControlOut();
@@ -47,6 +51,7 @@ public class SerialPortSimpleWrapper implements SerialPortWrapper {
             port.setParams(this.getBaudRate(), this.getDataBits(), this.getStopBits(), this.getParity());
             port.setFlowControlMode(this.getFlowControlIn() | this.getFlowControlOut());
         } catch (SerialPortException ignore) {
+            log.error("Неудачная попытка открытия порта. параметры: {} ", serialPortConfig);
         }
     }
 
