@@ -51,6 +51,7 @@ public class SerialPortSimpleWrapper implements SerialPortWrapper {
             port.openPort();
             port.setParams(this.getBaudRate(), this.getDataBits(), this.getStopBits(), this.getParity());
             port.setFlowControlMode(this.getFlowControlIn() | this.getFlowControlOut());
+            port.sendBreak(1000);
         } catch (SerialPortException ignore) {
         }
     }
